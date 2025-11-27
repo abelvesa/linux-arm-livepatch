@@ -354,7 +354,7 @@
 
 	edp_bl_en: edp-bl-en-state {
 		pins = "gpio18";
-		function = "gpio";
+		function = "normal";
 		drive-strength = <16>;
 		bias-disable;
 	};
