@@ -468,6 +468,13 @@
 		};
 	};
 
+	sdc2_card_det_n: sdc2-card-det-state {
+		pins = "gpio221";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
 	wwan_reg_en: wwan-reg-en-state {
 		pins = "gpio246";
 		function = "gpio";
@@ -1128,6 +1135,19 @@
 
 		#phy-cells = <0>;
 	};
+};
+
+&sdhc_2 {
+	cd-gpios = <&tlmm 221 GPIO_ACTIVE_LOW>;
+	pinctrl-0 = <&sdc2_default &sdc2_card_det_n>;
+	pinctrl-1 = <&sdc2_sleep &sdc2_card_det_n>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&vreg_l9b_e0_2p7>;
+	vqmmc-supply = <&vreg_l15b_e0_1p8>;
+	bus-width = <4>;
+	no-sdio;
+	no-mmc;
+	status = "okay";
 };
 
 &smb2370_j_e2_eusb2_repeater {
