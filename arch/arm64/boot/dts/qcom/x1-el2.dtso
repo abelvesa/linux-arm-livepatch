@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <dt-bindings/firmware/qcom,scm.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 
 /*
  * x1 specific modifications required to boot in EL2.
@@ -72,4 +73,17 @@
 
 &scm {
 	qcom,shm-bridge-vmid = <QCOM_SCM_VMID_SELF_OWNER>;
+};
+
+&soc {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	watchdog@17410000 {
+		compatible = "qcom,apss-wdt-x1e80100", "qcom,kpss-wdt";
+		reg = <0x0 0x17410000 0x0 0x1000>;
+		clocks = <&sleep_clk>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
+		interrupt-parent = <&intc>;
+	};
 };
