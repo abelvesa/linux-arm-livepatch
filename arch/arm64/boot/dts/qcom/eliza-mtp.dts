@@ -17,6 +17,10 @@
 		serial0 = &uart14;
 	};
 
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
 	clocks {
 		xo_board: xo-board {
 			compatible = "fixed-clock";
