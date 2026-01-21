@@ -182,8 +182,10 @@
 				core3 {
 					cpu = <&cpu6>;
 				};
+			};
 
-				core4 {
+			cluster2 {
+				core0 {
 					cpu = <&cpu7>;
 				};
 			};
@@ -201,34 +203,43 @@
 			cluster0_c4: cpu-sleep-0 {
 				compatible = "arm,idle-state";
 				idle-state-name = "retention";
-				arm,psci-suspend-param = <0x00000004>;
-				entry-latency-us = <93>;
-				exit-latency-us = <129>;
-				min-residency-us = <560>;
+				arm,psci-suspend-param = <0x40000004>;
+				entry-latency-us = <550>;
+				exit-latency-us = <750>;
+				min-residency-us = <6700>;
 			};
 
 			cluster1_c4: cpu-sleep-1 {
 				compatible = "arm,idle-state";
 				idle-state-name = "retention";
-				arm,psci-suspend-param = <0x00000004>;
-				entry-latency-us = <172>;
-				exit-latency-us = <130>;
-				min-residency-us = <686>;
+				arm,psci-suspend-param = <0x40000004>;
+				entry-latency-us = <550>;
+				exit-latency-us = <1050>;
+				min-residency-us = <7951>;
+			};
+
+			cluster2_c4: cpu-sleep-2 {
+				compatible = "arm,idle-state";
+				idle-state-name = "retention";
+				arm,psci-suspend-param = <0x40000004>;
+				entry-latency-us = <500>;
+				exit-latency-us = <1350>;
+				min-residency-us = <7480>;
 			};
 		};
 
 		domain-idle-states {
 			cluster_cl5: cluster-sleep-0 {
 				compatible = "domain-idle-state";
-				arm,psci-suspend-param = <0x01000054>;
-				entry-latency-us = <2150>;
-				exit-latency-us = <1983>;
+				arm,psci-suspend-param = <0x41000044>;
+				entry-latency-us = <750>;
+				exit-latency-us = <2350>;
 				min-residency-us = <9144>;
 			};
 
 			domain_ss3: domain-sleep-0 {
 				compatible = "domain-idle-state";
-				arm,psci-suspend-param = <0x0200c354>;
+				arm,psci-suspend-param = <0x4100b344>;
 				entry-latency-us = <2800>;
 				exit-latency-us = <4400>;
 				min-residency-us = <10150>;
@@ -310,8 +321,8 @@
 
 		cpu_pd7: power-domain-cpu7 {
 			#power-domain-cells = <0>;
-			power-domains = <&cluster1_pd>;
-			domain-idle-states = <&cluster1_c4>;
+			power-domains = <&cluster2_pd>;
+			domain-idle-states = <&cluster2_c4>;
 		};
 
 		cluster0_pd: power-domain-cluster0 {
@@ -321,6 +332,12 @@
 		};
 
 		cluster1_pd: power-domain-cluster1 {
+			#power-domain-cells = <0>;
+			domain-idle-states = <&cluster_cl5>;
+			power-domains = <&system_pd>;
+		};
+
+		cluster2_pd: power-domain-cluster2 {
 			#power-domain-cells = <0>;
 			domain-idle-states = <&cluster_cl5>;
 			power-domains = <&system_pd>;
