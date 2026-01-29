@@ -27,7 +27,7 @@ properties:
 
   gpio-reserved-ranges:
     minItems: 1
-    maxItems: 84
+    maxItems: 93
 
   gpio-line-names:
     maxItems: 185
@@ -57,7 +57,7 @@ $defs:
           subnode.
         items:
           oneOf:
-            - pattern: "^gpio([0-9]|[1-9][0-9]|1[0-7][0-9]|18[0-5])$"
+            - pattern: "^gpio([0-9]|[1-9][0-9]|1[0-7][0-9]|18[0-4])$"
             - enum: [ ufs_reset ]
         minItems: 1
         maxItems: 36
