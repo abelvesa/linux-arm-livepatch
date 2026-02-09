@@ -20,6 +20,23 @@ enum {
 	DT_BI_TCXO_PAD,
 };
 
+static struct clk_branch tcsr_hdmi_clkref_en = {
+	.halt_reg = 0x14,
+	.halt_check = BRANCH_HALT_DELAY,
+	.clkr = {
+		.enable_reg = 0x14,
+		.enable_mask = BIT(0),
+		.hw.init = &(const struct clk_init_data) {
+			.name = "tcsr_hdmi_clkref_en",
+			.parent_data = &(const struct clk_parent_data){
+				.index = DT_BI_TCXO_PAD,
+			},
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
 static struct clk_branch tcsr_pcie_0_clkref_en = {
 	.halt_reg = 0x0,
 	.halt_check = BRANCH_HALT_DELAY,
@@ -28,6 +45,23 @@ static struct clk_branch tcsr_pcie_0_clkref_en = {
 		.enable_mask = BIT(0),
 		.hw.init = &(const struct clk_init_data) {
 			.name = "tcsr_pcie_0_clkref_en",
+			.parent_data = &(const struct clk_parent_data){
+				.index = DT_BI_TCXO_PAD,
+			},
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch tcsr_pcie_1_clkref_en = {
+	.halt_reg = 0x1c,
+	.halt_check = BRANCH_HALT_DELAY,
+	.clkr = {
+		.enable_reg = 0x1c,
+		.enable_mask = BIT(0),
+		.hw.init = &(const struct clk_init_data) {
+			.name = "tcsr_pcie_1_clkref_en",
 			.parent_data = &(const struct clk_parent_data){
 				.index = DT_BI_TCXO_PAD,
 			},
@@ -89,7 +123,9 @@ static struct clk_branch tcsr_usb3_clkref_en = {
 };
 
 static struct clk_regmap *tcsr_cc_eliza_clocks[] = {
+	[TCSR_HDMI_CLKREF_EN] = &tcsr_hdmi_clkref_en.clkr,
 	[TCSR_PCIE_0_CLKREF_EN] = &tcsr_pcie_0_clkref_en.clkr,
+	[TCSR_PCIE_1_CLKREF_EN] = &tcsr_pcie_1_clkref_en.clkr,
 	[TCSR_UFS_CLKREF_EN] = &tcsr_ufs_clkref_en.clkr,
 	[TCSR_USB2_CLKREF_EN] = &tcsr_usb2_clkref_en.clkr,
 	[TCSR_USB3_CLKREF_EN] = &tcsr_usb3_clkref_en.clkr,
