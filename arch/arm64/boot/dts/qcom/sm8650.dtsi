@@ -4016,7 +4016,7 @@
 			interconnect-names = "ufs-ddr",
 					     "cpu-ufs";
 
-			power-domains = <&gcc UFS_PHY_GDSC>;
+		//	power-domains = <&gcc UFS_PHY_GDSC>;
 			required-opps = <&rpmhpd_opp_nom>;
 
 			operating-points-v2 = <&ufs_opp_table>;

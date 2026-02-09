@@ -9,6 +9,8 @@
  *	Vinayak Holikatti <h.vinayak@samsung.com>
  */
 
+#define DEBUG
+
 #include <linux/async.h>
 #include <linux/devfreq.h>
 #include <linux/nls.h>

@@ -433,7 +433,7 @@ static int psci_cpuidle_probe(struct faux_device *fdev)
 	int cpu, ret;
 	struct cpuidle_driver *drv;
 	struct cpuidle_device *dev;
-
+	pr_err("	DBG: %s %d: \n", __func__, __LINE__);
 	for_each_present_cpu(cpu) {
 		ret = psci_idle_init_cpu(&fdev->dev, cpu);
 		if (ret)

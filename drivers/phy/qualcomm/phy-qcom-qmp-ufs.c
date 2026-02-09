@@ -1140,6 +1140,8 @@ struct qmp_ufs {
 	u32 submode;
 };
 
+static void dump_config(const char *tag, struct qmp_ufs *qmp);
+
 static inline void qphy_setbits(void __iomem *base, u32 offset, u32 val)
 {
 	u32 reg;
@@ -1256,6 +1258,39 @@ static const struct qmp_ufs_offsets qmp_ufs_offsets_v6 = {
 	.rx		= 0x1200,
 	.tx2		= 0x1800,
 	.rx2		= 0x1a00,
+};
+
+static const struct qmp_phy_cfg eliza_ufsphy_cfg = {
+	.lanes			= 2,
+
+	.offsets		= &qmp_ufs_offsets_v6,
+	.max_supported_gear	= UFS_HS_G5,
+
+	.tbls = {
+		.serdes		= sm8650_ufsphy_serdes,
+		.serdes_num	= ARRAY_SIZE(sm8650_ufsphy_serdes),
+		.tx		= sm8650_ufsphy_tx,
+		.tx_num		= ARRAY_SIZE(sm8650_ufsphy_tx),
+		.rx		= sm8650_ufsphy_rx,
+		.rx_num		= ARRAY_SIZE(sm8650_ufsphy_rx),
+		.pcs		= sm8650_ufsphy_pcs,
+		.pcs_num	= ARRAY_SIZE(sm8650_ufsphy_pcs),
+	},
+	.tbls_hs_overlay[0] = {
+		.pcs		= sm8650_ufsphy_g4_pcs,
+		.pcs_num	= ARRAY_SIZE(sm8650_ufsphy_g4_pcs),
+		.max_gear	= UFS_HS_G4,
+	},
+	.tbls_hs_overlay[1] = {
+		.pcs		= sm8650_ufsphy_g5_pcs,
+		.pcs_num	= ARRAY_SIZE(sm8650_ufsphy_g5_pcs),
+		.max_gear	= UFS_HS_G5,
+	},
+
+	.vreg_list		= sm8650_ufsphy_vreg_l,
+	.num_vregs		= ARRAY_SIZE(sm8650_ufsphy_vreg_l),
+	.regs			= ufsphy_v6_regs_layout,
+
 };
 
 static const struct qmp_phy_cfg msm8996_ufsphy_cfg = {
@@ -1888,6 +1923,8 @@ static int qmp_ufs_phy_calibrate(struct phy *phy)
 		return ret;
 	}
 
+	dump_config("after", qmp);
+
 	return 0;
 }
 
@@ -2101,6 +2138,23 @@ static int qmp_ufs_parse_dt(struct qmp_ufs *qmp)
 	return 0;
 }
 
+static void dump_table(const char* tag, const char *table, void __iomem *offset, int len)
+{
+	for (int i = 0; i <= len; i += 4)
+		pr_err("	DBG: %s %d: %s %s: 0x%x 0x%x\n", __func__, __LINE__, tag, table, i, readl(offset + i));
+}
+
+static void dump_config(const char *tag, struct qmp_ufs *qmp)
+{
+	return;
+	dump_table(tag, "serdes", qmp->serdes, 0x200);
+	dump_table(tag, "pcs", qmp->pcs, 0x258);
+	dump_table(tag, "tx", qmp->tx, 0x134);
+	dump_table(tag, "rx", qmp->rx, 0x134);
+	dump_table(tag, "tx2", qmp->tx2, 0x3d8);
+	dump_table(tag, "rx2", qmp->rx2, 0x3d8);
+}
+
 static int qmp_ufs_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -2157,6 +2211,8 @@ static int qmp_ufs_probe(struct platform_device *pdev)
 
 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
 
+	dump_config("before", qmp);
+
 	return PTR_ERR_OR_ZERO(phy_provider);
 
 err_node_put:
@@ -2166,6 +2222,9 @@ err_node_put:
 
 static const struct of_device_id qmp_ufs_of_match_table[] = {
 	{
+		.compatible = "qcom,eliza-qmp-ufs-phy",
+		.data = &eliza_ufsphy_cfg,
+	}, {
 		.compatible = "qcom,msm8996-qmp-ufs-phy",
 		.data = &msm8996_ufsphy_cfg,
 	}, {

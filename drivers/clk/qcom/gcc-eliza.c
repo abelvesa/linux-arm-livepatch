@@ -2838,7 +2838,7 @@ static struct gdsc gcc_ufs_phy_gdsc = {
 		.name = "gcc_ufs_phy_gdsc",
 	},
 	.pwrsts = PWRSTS_OFF_ON,
-	.flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE,
+	.flags = VOTABLE | POLL_CFG_GDSCR | RETAIN_FF_ENABLE,
 };
 
 static struct gdsc gcc_usb30_prim_gdsc = {
@@ -3133,7 +3133,18 @@ MODULE_DEVICE_TABLE(of, gcc_eliza_match_table);
 
 static int gcc_eliza_probe(struct platform_device *pdev)
 {
-	return qcom_cc_probe(pdev, &gcc_eliza_desc);
+	struct regmap *regmap;
+	int ret;
+
+	regmap = qcom_cc_map(pdev, &gcc_eliza_desc);
+	if (IS_ERR(regmap))
+		return PTR_ERR(regmap);
+
+	/* FORCE_MEM_CORE_ON for ufs phy ice core and gcc ufs phy axi clocks  */
+	qcom_branch_set_force_mem_core(regmap, gcc_ufs_phy_ice_core_clk, true);
+	qcom_branch_set_force_mem_core(regmap, gcc_ufs_phy_axi_clk, true);
+
+	return qcom_cc_really_probe(&pdev->dev, &gcc_eliza_desc, regmap);
 }
 
 static struct platform_driver gcc_eliza_driver = {
