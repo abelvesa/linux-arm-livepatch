@@ -25,6 +25,9 @@ static u64 address_space_size = 0;
 MODULE_PARM_DESC(address_space_size, "Override for size of processes private GPU address space");
 module_param(address_space_size, ullong, 0600);
 
+u64 override_chip_id = 0;
+module_param(override_chip_id, ullong, 0600);
+
 static bool zap_available = true;
 
 static int zap_shader_load_mdt(struct msm_gpu *gpu, const char *fwname,
@@ -373,6 +376,12 @@ int adreno_get_param(struct msm_gpu *gpu, struct msm_context *ctx,
 		*value = adreno_gpu->info->revn;
 		return 0;
 	case MSM_PARAM_GMEM_SIZE:
+		if (override_chip_id) {
+			const struct adreno_info *adreno_info(uint32_t chip_id);
+			const struct adreno_info *info = adreno_info(override_chip_id);
+			*value = info->gmem;
+			return 0;
+		}
 		*value = adreno_gpu->info->gmem;
 		return 0;
 	case MSM_PARAM_GMEM_BASE:
@@ -382,6 +391,10 @@ int adreno_get_param(struct msm_gpu *gpu, struct msm_context *ctx,
 			*value = 0x100000;
 		return 0;
 	case MSM_PARAM_CHIP_ID:
+		if (override_chip_id) {
+			*value = override_chip_id;
+			return 0;
+		}
 		*value = adreno_gpu->chip_id;
 		if (!adreno_gpu->info->revn)
 			*value |= ((uint64_t) adreno_gpu->speedbin) << 32;

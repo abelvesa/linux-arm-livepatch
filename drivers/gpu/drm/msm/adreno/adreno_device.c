@@ -46,7 +46,7 @@ static const struct adreno_gpulist *gpulists[] = {
 	&a8xx_gpulist,
 };
 
-static const struct adreno_info *adreno_info(uint32_t chip_id)
+const struct adreno_info *adreno_info(uint32_t chip_id)
 {
 	/* identify gpu: */
 	for (int i = 0; i < ARRAY_SIZE(gpulists); i++) {
