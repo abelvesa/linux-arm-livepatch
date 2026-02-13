@@ -16,6 +16,8 @@
 
 #define GPU_PAS_ID 13
 
+extern u64 override_chip_id;
+
 static u64 read_gmu_ao_counter(struct a6xx_gpu *a6xx_gpu)
 {
 	u64 count_hi, count_lo, temp;
@@ -357,6 +359,8 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
 
 	/* Submit the commands */
 	for (i = 0; i < submit->nr_cmds; i++) {
+		if (override_chip_id)
+			break;
 		switch (submit->cmd[i].type) {
 		case MSM_SUBMIT_CMD_IB_TARGET_BUF:
 			break;
@@ -500,6 +504,8 @@ static void a7xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
 
 	/* Submit the commands */
 	for (i = 0; i < submit->nr_cmds; i++) {
+		if (override_chip_id)
+			break;
 		switch (submit->cmd[i].type) {
 		case MSM_SUBMIT_CMD_IB_TARGET_BUF:
 			break;
