@@ -795,7 +795,7 @@
 			interconnect-names = "ufs-ddr",
 					     "cpu-ufs";
 
-//			power-domains = <&gcc GCC_UFS_PHY_GDSC>;
+			power-domains = <&gcc GCC_UFS_PHY_GDSC>;
 			required-opps = <&rpmhpd_opp_nom>;
 
 			operating-points-v2 = <&ufs_opp_table>;
@@ -826,11 +826,11 @@
 			ufs_opp_table: opp-table {
 				compatible = "operating-points-v2";
 
-				opp-75000000 {
-					opp-hz = /bits/ 64 <75000000>,
+				opp-100000000 {
+					opp-hz = /bits/ 64 <100000000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
-						 /bits/ 64 <75000000>,
+						 /bits/ 64 <100000000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
@@ -838,11 +838,11 @@
 					required-opps = <&rpmhpd_opp_low_svs>;
 				};
 
-				opp-150000000 {
-					opp-hz = /bits/ 64 <150000000>,
+				opp-201500000 {
+					opp-hz = /bits/ 64 <201500000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
-						 /bits/ 64 <150000000>,
+						 /bits/ 64 <201500000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
@@ -850,11 +850,11 @@
 					required-opps = <&rpmhpd_opp_svs>;
 				};
 
-				opp-300000000 {
-					opp-hz = /bits/ 64 <300000000>,
+				opp-403000000 {
+					opp-hz = /bits/ 64 <403000000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
-						 /bits/ 64 <300000000>,
+						 /bits/ 64 <403000000>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
 						 /bits/ 64 <0>,
