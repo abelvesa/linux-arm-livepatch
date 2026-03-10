@@ -4428,7 +4428,7 @@
 		};
 
 		gxclkctl: clock-controller@3d68024 {
-			compatible = "qcom,glymur-gx_clkctl";
+			compatible = "qcom,glymur-gxclkctl";
 			reg = <0x0 0x3d68024 0x0 0x8>;
 
 			power-domains = <&rpmhpd RPMHPD_GFX>,
