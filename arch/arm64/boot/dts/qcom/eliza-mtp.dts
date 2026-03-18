@@ -226,9 +226,8 @@
 
 		vreg_l12b: ldo12 {
 			regulator-name = "vreg_l12b";
-			/*
-			 * Skip voltage voting for UFS VCC.
-			 */
+			regulator-min-microvolt = <2400000>;
+			regulator-max-microvolt = <3300000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
