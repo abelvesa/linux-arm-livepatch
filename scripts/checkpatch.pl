@@ -738,7 +738,7 @@ sub find_standard_signature {
 	my ($sign_off) = @_;
 	my @standard_signature_tags = (
 		'Signed-off-by:', 'Co-developed-by:', 'Acked-by:', 'Tested-by:',
-		'Reviewed-by:', 'Reported-by:', 'Suggested-by:'
+		'Reviewed-by:', 'Reported-by:', 'Suggested-by:', 'Assisted-by:'
 	);
 	foreach my $signature (@standard_signature_tags) {
 		return $signature if (get_edit_distance($sign_off, $signature) <= 2);
@@ -3107,10 +3107,10 @@ sub process {
 			}
 
 			# Assisted-by uses AGENT_NAME:MODEL_VERSION format, not email
-			if ($sign_off =~ /^Assisted-by:/i) {
-				if ($email !~ /^\S+:\S+/) {
-					WARN("BAD_SIGN_OFF",
-					     "Assisted-by expects 'AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]' format\n" . $herecurr);
+			if ($sign_off =~ /^assisted-by:$/i) {
+				if ($email !~ /^[^:]+:\S+(\s+\S+)*$/) {
+					WARN("BAD_ASSISTED_BY",
+					     "Assisted-by: should use format: 'Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]'\n" . $herecurr);
 				}
 				next;
 			}
