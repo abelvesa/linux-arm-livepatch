@@ -110,6 +110,14 @@
 	};
 };
 
+&gpu {
+	status = "okay";
+};
+
+&gmu {
+	status = "okay";
+};
+
 &i2c0 {
 	clock-frequency = <400000>;
 
