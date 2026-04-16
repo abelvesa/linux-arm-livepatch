@@ -750,7 +750,7 @@
 			status = "disabled";
 		};
 
-		qupv3_2: geniqup@8c0000 {
+		qupv3_id_1: geniqup@8c0000 {
 			compatible = "qcom,geni-se-qup";
 			reg = <0x0 0x008c0000 0x0 0x2000>;
 
@@ -760,6 +760,8 @@
 				      "s-ahb";
 
 			iommus = <&apps_smmu 0x423 0x0>;
+
+			dma-coherent;
 
 			#address-cells = <2>;
 			#size-cells = <2>;
@@ -1332,13 +1334,12 @@
 			#dma-cells = <3>;
 
 			iommus = <&apps_smmu 0xb6 0x0>;
-
 			dma-coherent;
 
 			status = "disabled";
 		};
 
-		qupv3_1: geniqup@ac0000 {
+		qupv3_id_0: geniqup@ac0000 {
 			compatible = "qcom,geni-se-qup";
 			reg = <0x0 0x00ac0000 0x0 0x2000>;
 
@@ -1348,6 +1349,8 @@
 				      "s-ahb";
 
 			iommus = <&apps_smmu 0xa3 0x0>;
+
+			dma-coherent;
 
 			#address-cells = <2>;
 			#size-cells = <2>;
