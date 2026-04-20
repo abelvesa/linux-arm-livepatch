@@ -598,7 +598,7 @@
 };
 
 &usb_hsphy {
-	vdd-supply = <&vreg_l2b>;
+	vdd-supply = <&vreg_l7k>;
 	vdda12-supply = <&vreg_l4b>;
 
 	phys = <&pm7550ba_eusb2_repeater>;
