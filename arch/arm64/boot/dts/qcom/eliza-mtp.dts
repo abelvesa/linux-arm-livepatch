@@ -624,8 +624,6 @@
 };
 
 &usb {
-	dr_mode = "otg";
-
 	status = "okay";
 };
 
