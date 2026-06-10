@@ -101,3 +101,30 @@
 
 	status = "okay";
 };
+
+&i2c4 {
+	pinctrl-0 = <&qup_i2c4_data_clk>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	gpio_expander0: gpio@20 {
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		vcc-supply = <&vreg_l9b>;
+	};
+
+	gpio_expander1: gpio@38 {
+		compatible = "nxp,pca9534";
+		reg = <0x38>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		vcc-supply = <&vreg_l9b>;
+	};
+};
