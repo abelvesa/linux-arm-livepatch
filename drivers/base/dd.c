@@ -341,6 +341,7 @@ static int deferred_probe_initcall(void)
 {
 	debugfs_create_file("devices_deferred", 0444, NULL, NULL,
 			    &deferred_devs_fops);
+	fw_devlink_debugfs_init();
 
 	driver_deferred_probe_enable = true;
 	driver_deferred_probe_trigger();

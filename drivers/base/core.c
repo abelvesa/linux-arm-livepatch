@@ -32,6 +32,8 @@
 #include <linux/string_helpers.h>
 #include <linux/swiotlb.h>
 #include <linux/sysfs.h>
+#include <linux/debugfs.h>
+#include <linux/seq_file.h>
 
 #include "base.h"
 #include "physical_location.h"
@@ -5432,3 +5434,82 @@ int device_match_any(struct device *dev, const void *unused)
 	return 1;
 }
 EXPORT_SYMBOL_GPL(device_match_any);
+
+
+/* fw_devlink debugfs support */
+
+static int fw_devlink_summary_show(struct seq_file *s, void *data)
+{
+	struct device **devs;
+	struct device *dev;
+	unsigned int count = 0, i;
+	int idx;
+
+	/*
+	 * Snapshot the device list under the kset spinlock, taking a
+	 * reference to each device so they remain valid after we drop it.
+	 */
+	spin_lock(&devices_kset->list_lock);
+	list_for_each_entry(dev, &devices_kset->list, kobj.entry)
+		count++;
+	spin_unlock(&devices_kset->list_lock);
+
+	if (!count)
+		return 0;
+
+	devs = kvmalloc_array(count, sizeof(*devs), GFP_KERNEL);
+	if (!devs)
+		return -ENOMEM;
+
+	i = 0;
+	spin_lock(&devices_kset->list_lock);
+	list_for_each_entry(dev, &devices_kset->list, kobj.entry) {
+		if (i < count && get_device(dev))
+			devs[i++] = dev;
+	}
+	spin_unlock(&devices_kset->list_lock);
+	count = i;
+
+	seq_puts(s, "# fw_devlink device dependencies (supplier: consumers)\n");
+
+	idx = device_links_read_lock();
+
+	for (i = 0; i < count; i++) {
+		struct device_link *link;
+		bool first = true;
+
+		if (!is_of_node(dev_fwnode(devs[i])))
+			continue;
+
+		seq_printf(s, "%s:", dev_name(devs[i]));
+
+		dev_for_each_link_to_consumer(link, devs[i]) {
+			if (first) {
+				seq_puts(s, "\n");
+				first = false;
+			}
+			seq_printf(s, "\t%s\n", dev_name(link->consumer));
+		}
+
+		if (first)
+			seq_puts(s, " (none)\n");
+	}
+
+	device_links_read_unlock(idx);
+
+	for (i = 0; i < count; i++)
+		put_device(devs[i]);
+	kvfree(devs);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(fw_devlink_summary);
+
+void fw_devlink_debugfs_init(void)
+{
+	struct dentry *dir;
+
+	dir = debugfs_create_dir("fwdevlink", NULL);
+	debugfs_create_file("summary", 0444, dir, NULL,
+			    &fw_devlink_summary_fops);
+}
