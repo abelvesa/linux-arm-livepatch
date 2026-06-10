@@ -15,13 +15,111 @@
 #include "qdsp6/q6dsp-common.h"
 #include "sdw.h"
 
+#define X1E80100_WSA_MAX_CHANNELS	4
+
+/*
+ * Index 0 = WSA_CODEC_DMA_RX_0, index 1 = WSA_CODEC_DMA_RX_1.
+ * Each entry holds up to X1E80100_WSA_MAX_CHANNELS SNDRV_CHMAP_* values
+ * written by userspace via the mixer control.  All-zero means "not set".
+ */
+#define X1E80100_WSA_RX_COUNT		2
+
 struct x1e80100_snd_data {
 	bool stream_prepared[AFE_PORT_MAX];
 	struct snd_soc_card *card;
 	struct snd_soc_jack jack;
 	struct snd_soc_jack dp_jack[8];
 	bool jack_setup;
+	unsigned int wsa_chmap[X1E80100_WSA_RX_COUNT][X1E80100_WSA_MAX_CHANNELS];
 };
+
+static int x1e80100_wsa_rx_idx(unsigned int dai_id)
+{
+	switch (dai_id) {
+	case WSA_CODEC_DMA_RX_0: return 0;
+	case WSA_CODEC_DMA_RX_1: return 1;
+	default:                 return -EINVAL;
+	}
+}
+
+static int x1e80100_sndrv_ch_to_q6(unsigned int pos)
+{
+	switch (pos) {
+	case SNDRV_CHMAP_FL:	return PCM_CHANNEL_FL;
+	case SNDRV_CHMAP_FR:	return PCM_CHANNEL_FR;
+	case SNDRV_CHMAP_MONO:
+	case SNDRV_CHMAP_FC:	return PCM_CHANNEL_FC;
+	case SNDRV_CHMAP_RL:	return PCM_CHANNEL_LB;
+	case SNDRV_CHMAP_RR:	return PCM_CHANNEL_RB;
+	case SNDRV_CHMAP_SL:	return PCM_CHANNEL_LS;
+	case SNDRV_CHMAP_SR:	return PCM_CHANNEL_RS;
+	case SNDRV_CHMAP_LFE:	return PCM_CHANNEL_LFE;
+	case SNDRV_CHMAP_RC:	return PCM_CHANNEL_CS;
+	default:		return -EINVAL;
+	}
+}
+
+static int x1e80100_wsa_chmap_get(struct snd_kcontrol *kcontrol,
+				  struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
+	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(card);
+	unsigned int idx = kcontrol->private_value;
+	int i;
+
+	for (i = 0; i < X1E80100_WSA_MAX_CHANNELS; i++)
+		ucontrol->value.integer.value[i] = data->wsa_chmap[idx][i];
+
+	return 0;
+}
+
+static int x1e80100_wsa_chmap_put(struct snd_kcontrol *kcontrol,
+				  struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
+	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(card);
+	unsigned int idx = kcontrol->private_value;
+	int i;
+
+	for (i = 0; i < X1E80100_WSA_MAX_CHANNELS; i++) {
+		unsigned int pos = ucontrol->value.integer.value[i];
+
+		if (pos && x1e80100_sndrv_ch_to_q6(pos) < 0)
+			return -EINVAL;
+		data->wsa_chmap[idx][i] = pos;
+	}
+
+	return 0;
+}
+
+static int x1e80100_wsa_chmap_info(struct snd_kcontrol *kcontrol,
+				   struct snd_ctl_elem_info *uinfo)
+{
+	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+	uinfo->count = X1E80100_WSA_MAX_CHANNELS;
+	uinfo->value.integer.min = 0;
+	uinfo->value.integer.max = SNDRV_CHMAP_LAST;
+
+	return 0;
+}
+
+static int x1e80100_add_wsa_chmap_ctl(struct snd_soc_pcm_runtime *rtd,
+				      unsigned int idx)
+{
+	struct snd_kcontrol_new knew = {
+		.iface		= SNDRV_CTL_ELEM_IFACE_MIXER,
+		.access		= SNDRV_CTL_ELEM_ACCESS_READWRITE,
+		.name		= idx == 0 ? "WSA RX0 Channel Map"
+					   : "WSA RX1 Channel Map",
+		.info		= x1e80100_wsa_chmap_info,
+		.get		= x1e80100_wsa_chmap_get,
+		.put		= x1e80100_wsa_chmap_put,
+		.private_value	= idx,
+	};
+
+	return snd_ctl_add(rtd->card->snd_card,
+			   snd_ctl_new1(&knew, rtd->card));
+}
 
 static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
 {
@@ -49,7 +147,8 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
 		snd_soc_limit_volume(card, "TweeterLeft PA Volume", 6);
 		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
 		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
-		break;
+		return x1e80100_add_wsa_chmap_ctl(rtd,
+					x1e80100_wsa_rx_idx(cpu_dai->id));
 	case DISPLAY_PORT_RX_0:
 		dp_pcm_id = 0;
 		dp_jack = &data->dp_jack[dp_pcm_id];
@@ -132,15 +231,35 @@ static int x1e80100_snd_prepare(struct snd_pcm_substream *substream)
 	switch (cpu_dai->id) {
 	case WSA_CODEC_DMA_RX_0:
 	case WSA_CODEC_DMA_RX_1:
-		ret = x1e80100_snd_hw_map_channels(rx_slot, channels);
-		if (ret)
-			return ret;
+	{
+		int idx = x1e80100_wsa_rx_idx(cpu_dai->id);
+		unsigned int *umap = data->wsa_chmap[idx];
+		unsigned int i, set = 0;
+
+		for (i = 0; i < channels; i++)
+			if (umap[i])
+				set++;
+
+		if (set == channels) {
+			for (i = 0; i < channels; i++) {
+				int q6 = x1e80100_sndrv_ch_to_q6(umap[i]);
+
+				if (q6 < 0)
+					return q6;
+				rx_slot[i] = q6;
+			}
+		} else {
+			ret = x1e80100_snd_hw_map_channels(rx_slot, channels);
+			if (ret)
+				return ret;
+		}
 
 		ret = snd_soc_dai_set_channel_map(cpu_dai, 0, NULL,
 						  channels, rx_slot);
 		if (ret)
 			return ret;
 		break;
+	}
 	default:
 		break;
 	}
