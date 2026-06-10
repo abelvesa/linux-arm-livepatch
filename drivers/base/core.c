@@ -5497,6 +5497,43 @@ static int fw_devlink_summary_show(struct seq_file *s, void *data)
 
 	device_links_read_unlock(idx);
 
+	/* Show pending fwnode links: fw_devlink dependencies not yet
+	 * converted to device links because the supplier or consumer
+	 * device does not exist yet.
+	 */
+	seq_puts(s, "\n# unsatisfied fw_devlink dependencies (pending fwnode links)\n");
+
+	mutex_lock(&fwnode_link_lock);
+
+	for (i = 0; i < count; i++) {
+		struct fwnode_handle *fwnode = devs[i]->fwnode;
+		struct fwnode_link *fwlink;
+		bool first = true;
+
+		if (!is_of_node(fwnode))
+			continue;
+
+		list_for_each_entry(fwlink, &fwnode->consumers, s_hook) {
+			if (fwlink->flags & FWLINK_FLAG_IGNORE)
+				continue;
+			if (first) {
+				seq_printf(s, "%s:\n", dev_name(devs[i]));
+				first = false;
+			}
+			seq_printf(s, "\t[pending consumer] %pfwf\n",
+				   fwlink->consumer);
+		}
+
+		list_for_each_entry(fwlink, &fwnode->suppliers, c_hook) {
+			if (fwlink->flags & FWLINK_FLAG_IGNORE)
+				continue;
+			seq_printf(s, "%s: [pending supplier] %pfwf\n",
+				   dev_name(devs[i]), fwlink->supplier);
+		}
+	}
+
+	mutex_unlock(&fwnode_link_lock);
+
 	for (i = 0; i < count; i++)
 		put_device(devs[i]);
 	kvfree(devs);
