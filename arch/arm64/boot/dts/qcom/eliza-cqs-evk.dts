@@ -12,19 +12,3 @@
 	model = "Qualcomm Technologies, Inc. Eliza CQS EVK";
 	compatible = "qcom,eliza-cqs-evk", "qcom,eliza-cqs-som", "qcom,eliza";
 };
-
-&pcie0 {
-	status = "okay";
-};
-
-&pcie0_phy {
-	status = "okay";
-};
-
-&pcie1 {
-	status = "okay";
-};
-
-&pcie1_phy {
-	status = "okay";
-};

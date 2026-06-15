@@ -50,8 +50,64 @@
 	};
 };
 
-&uart13 {
-	compatible = "qcom,geni-debug-uart";
+&i2c4 {
+	pinctrl-0 = <&qup_i2c4_data_clk>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	gpio_expander0: gpio@20 {
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		vcc-supply = <&vreg_l9b>;
+	};
+
+	gpio_expander1: gpio@38 {
+		compatible = "nxp,pca9534";
+		reg = <0x38>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		vcc-supply = <&vreg_l9b>;
+	};
+};
+
+&pcie0 {
+	wake-gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+	perst-gpios = <&tlmm 78 GPIO_ACTIVE_LOW>;
+
+	pinctrl-0 = <&pcie0_default_state>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&pcie0_phy {
+	vdda-phy-supply = <&vreg_l1k>;
+	vdda-pll-supply = <&vreg_l3k>;
+
+	status = "okay";
+};
+
+&pcie1 {
+	wake-gpios = <&tlmm 53 GPIO_ACTIVE_HIGH>;
+	perst-gpios = <&tlmm 54 GPIO_ACTIVE_LOW>;
+
+	pinctrl-0 = <&pcie1_default_state>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&pcie1_phy {
+	vdda-phy-supply = <&vreg_l1k>;
+	vdda-pll-supply = <&vreg_l3k>;
+	vdda-qref-supply = <&vreg_l1k>;
 
 	status = "okay";
 };
@@ -59,6 +115,25 @@
 &pm7550ba_eusb2_repeater {
 	vdd18-supply = <&vreg_l7b>;
 	vdd3-supply = <&vreg_l17b>;
+};
+
+&sdhc_2 {
+	vmmc-supply = <&vreg_l13b>;
+	vqmmc-supply = <&vreg_l23b>;
+
+	cd-gpios = <&tlmm 58 GPIO_ACTIVE_LOW>;
+
+	pinctrl-0 = <&sdc2_default>;
+	pinctrl-1 = <&sdc2_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	status = "okay";
+};
+
+&uart13 {
+	compatible = "qcom,geni-debug-uart";
+
+	status = "okay";
 };
 
 &usb {
@@ -87,44 +162,4 @@
 	phys = <&pm7550ba_eusb2_repeater>;
 
 	status = "okay";
-};
-
-&sdhc_2 {
-	vmmc-supply = <&vreg_l13b>;
-	vqmmc-supply = <&vreg_l23b>;
-
-	cd-gpios = <&tlmm 58 GPIO_ACTIVE_LOW>;
-
-	pinctrl-0 = <&sdc2_default>;
-	pinctrl-1 = <&sdc2_sleep>;
-	pinctrl-names = "default", "sleep";
-
-	status = "okay";
-};
-
-&i2c4 {
-	pinctrl-0 = <&qup_i2c4_data_clk>;
-	pinctrl-names = "default";
-
-	status = "okay";
-
-	gpio_expander0: gpio@20 {
-		compatible = "ti,tca6416";
-		reg = <0x20>;
-
-		gpio-controller;
-		#gpio-cells = <2>;
-
-		vcc-supply = <&vreg_l9b>;
-	};
-
-	gpio_expander1: gpio@38 {
-		compatible = "nxp,pca9534";
-		reg = <0x38>;
-
-		gpio-controller;
-		#gpio-cells = <2>;
-
-		vcc-supply = <&vreg_l9b>;
-	};
 };
