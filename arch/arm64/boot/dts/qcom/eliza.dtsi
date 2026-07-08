@@ -4451,40 +4451,41 @@
 			llcc_bwmon_opp_table: opp-table {
 				compatible = "operating-points-v2";
 
+				/* LLCC->DDR path: DDR (LP5) freq x 4 bytes */
 				opp-0 {
-					opp-peak-kBps = <2086000>;
+					opp-peak-kBps = <2188800>;
 				};
 
 				opp-1 {
-					opp-peak-kBps = <2929000>;
+					opp-peak-kBps = <5414400>;
 				};
 
 				opp-2 {
-					opp-peak-kBps = <5931000>;
+					opp-peak-kBps = <6220800>;
 				};
 
 				opp-3 {
-					opp-peak-kBps = <6515000>;
+					opp-peak-kBps = <6835200>;
 				};
 
 				opp-4 {
-					opp-peak-kBps = <7980000>;
+					opp-peak-kBps = <8371200>;
 				};
 
 				opp-5 {
-					opp-peak-kBps = <10437000>;
+					opp-peak-kBps = <10944000>;
 				};
 
 				opp-6 {
-					opp-peak-kBps = <12157000>;
+					opp-peak-kBps = <12748800>;
 				};
 
 				opp-7 {
-					opp-peak-kBps = <14060000>;
+					opp-peak-kBps = <14745600>;
 				};
 
 				opp-8 {
-					opp-peak-kBps = <16113000>;
+					opp-peak-kBps = <16896000>;
 				};
 			};
 		};
@@ -4504,48 +4505,33 @@
 			cpu_bwmon_opp_table: opp-table {
 				compatible = "operating-points-v2";
 
+				/* CPU->LLCC path: LLCC freq x 16 bytes */
 				opp-0 {
-					opp-peak-kBps = <800000>;
+					opp-peak-kBps = <307200>;
 				};
 
 				opp-1 {
-					opp-peak-kBps = <2188000>;
+					opp-peak-kBps = <5600000>;
 				};
 
 				opp-2 {
-					opp-peak-kBps = <5414400>;
+					opp-peak-kBps = <8528000>;
 				};
 
 				opp-3 {
-					opp-peak-kBps = <6220800>;
+					opp-peak-kBps = <11120000>;
 				};
 
 				opp-4 {
-					opp-peak-kBps = <6835200>;
+					opp-peak-kBps = <14000000>;
 				};
 
 				opp-5 {
-					opp-peak-kBps = <8371200>;
+					opp-peak-kBps = <14928000>;
 				};
 
 				opp-6 {
-					opp-peak-kBps = <10944000>;
-				};
-
-				opp-7 {
-					opp-peak-kBps = <12748800>;
-				};
-
-				opp-8 {
-					opp-peak-kBps = <14745600>;
-				};
-
-				opp-9 {
-					opp-peak-kBps = <16896000>;
-				};
-
-				opp-10 {
-					opp-peak-kBps = <19046400>;
+					opp-peak-kBps = <17056000>;
 				};
 			};
 		};
