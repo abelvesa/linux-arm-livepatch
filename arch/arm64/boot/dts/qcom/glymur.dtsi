@@ -3794,6 +3794,7 @@
 			interconnects = <&aggre1_noc MASTER_CRYPTO QCOM_ICC_TAG_ALWAYS
 					 &mc_virt SLAVE_EBI1 QCOM_ICC_TAG_ALWAYS>;
 			interconnect-names = "memory";
+			status = "disabled";
 		};
 
 		tcsr_mutex: hwlock@1f40000 {
@@ -3840,6 +3841,7 @@
 					 &mc_virt SLAVE_EBI1 QCOM_ICC_TAG_ALWAYS>;
 			interconnect-names = "gfx-mem";
 
+			status = "disabled";
 			gpu_opp_table: opp-table {
 				compatible = "operating-points-v2-adreno",
 					     "operating-points-v2";
@@ -3951,6 +3953,7 @@
 					<&gpucc GPU_CC_CX_GDSC>;
 
 			#power-domain-cells = <1>;
+			status = "disabled";
 		};
 
 		gmu: gmu@3d6c000 {
@@ -3987,6 +3990,7 @@
 			qcom,qmp = <&aoss_qmp>;
 
 			operating-points-v2 = <&gmu_opp_table>;
+			status = "disabled";
 
 			gmu_opp_table: opp-table {
 				compatible = "operating-points-v2";
@@ -4028,6 +4032,7 @@
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
+			status = "disabled";
 		};
 
 		adreno_smmu: iommu@3da0000 {
@@ -4066,6 +4071,7 @@
 			clock-names = "hlos";
 			power-domains = <&gpucc GPU_CC_CX_GDSC>;
 			dma-coherent;
+			status = "disabled";
 		};
 
 		ipcc: mailbox@3e04000 {
@@ -4935,6 +4941,8 @@
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
+
+			status = "disabled";
 		};
 
 		mdss: display-subsystem@ae00000 {
@@ -5394,6 +5402,8 @@
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
+
+			status = "disabled";
 		};
 
 		dispcc: clock-controller@af00000 {
